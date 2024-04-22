@@ -8,6 +8,7 @@ import wikipedia
 import requests
 import Tokens
 from newsapi import NewsApiClient
+from telebot import types
 
 token = Tokens.TOKEN_NEWS
 creator = Tokens.CREATOR
@@ -19,12 +20,27 @@ dict_id = {}
 
 @bot.message_handler(commands=["start"])
 def start(message):
+    markup = types.InlineKeyboardMarkup()
+    fir_button = types.InlineKeyboardButton(text="Новости", callback_data="news")
+    sec_button = types.InlineKeyboardButton(text="Связаться с админом", callback_data="send_admin")
+    third_button = types.InlineKeyboardButton(text="Сменить язык", callback_data="send_admin")
+    markup.add(fir_button, sec_button)
     bot.send_message(message.from_user.id,
-                     "Привет! Это бот о новостях")
+                     "Привет! Это бот о новостях", reply_markup=markup)
+
+@bot.callback_query_handler(func = lambda call: call.data == "news")
+def news(cb):
+    print(cb)
+
+@bot.callback_query_handler(func = lambda call: call.data == "send_admin")
+def sendadmin(cb):
+    print(cb)
 
 
-@bot.message_handler(commands=["send_admin"])
-def send_admin(message):
+
+
+@bot.message_handler(commands=["send_user"])
+def send_user(message):
     t = message.text.split()
     v = " ".join(t[2:])
     g = t[1]
@@ -36,6 +52,12 @@ def send_admin(message):
         bot.send_message(message.from_user.id, f"Обработано, {Error}")
 
 
+@bot.message_handler(commands=["send_admin"])
+def send_admin(message):
+    s = message.text[11:]
+    print(s)
+    bot.send_message(creator, f"{s}, от {message.from_user.first_name} {message.from_user.username}")
+
 def news_api(request):
     # newsapi = NewsApiClient(api_key=Tokens.NEWS_API)
     # top_headlines = newsapi.get_top_headlines(q='Майнкрафт',
@@ -45,8 +67,9 @@ def news_api(request):
     answer = requests.get(f"https://newsapi.org/v2/everything?q={request}&language=ru&apiKey={Tokens.NEWS_API}")
     pprint(answer.json())
     x = answer.json()
+    # bot.send_message(message.from_user.id, x["articles"]["author"]["description"][])
 
-news_api("Майнкрафт")
+# news_api("Minecraft")
 
 
 def open_file_r(file_path):
@@ -63,10 +86,13 @@ def open_file_w(file_path, data):
 bot.polling()
 
 """
-Юзеру отправлять сообщение мы научились, теперь нужно сделать наоборот (по какой-то команде отправить сообщение создателю), подсказка: есть функция forward_message 
+1. Создать базу данных в самом начале коде и в ней таблицу:
+Столбцы:
+айди_тг
+...
+...
+язык_юзера ИНТЕДЖЕР (это будет число)
 
-2. Достать красиво все данные из переменной x и отправить их в ответ на сообщение отправителя.
-Все новости должны быть запакованы в одну переменную (это важно, чтобы не бот не спамил юзеру)
 
-3. Обрабатывать все ошибки в процессе
+При нажатии на кнопку "Старт" добавлять нового юзера в базу данных
 """
