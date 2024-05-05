@@ -11,12 +11,13 @@ def lang_buttons():
 
 
 def lang_change(g):
-    dict_lang = {1: ("News", "Contact with admin", "Change language"),
-                 2: ("Новости", "Связаться с админом", "Сменить язык"),
-                 3: ("Noticias", "Contactar al administrador", "Cambiar idioma")}
+    dict_lang = {1: ("News", "Contact with admin", "Change language", "Return home"),
+                 2: ("Новости", "Связаться с админом", "Сменить язык", "Вернуться домой"),
+                 3: ("Noticias", "Contactar al administrador", "Cambiar idioma", "Volver a casa")}
     markup = types.InlineKeyboardMarkup()
     fir_button = types.InlineKeyboardButton(text=dict_lang[g][0], callback_data="news")
     sec_button = types.InlineKeyboardButton(text=dict_lang[g][1], callback_data="send_admin")
     third_button = types.InlineKeyboardButton(text=dict_lang[g][2], callback_data="lang")
-    markup.add(sec_button, third_button).add(fir_button)
+    fourth_button = types.InlineKeyboardButton(text=dict_lang[g][3], callback_data="return_home")
+    markup.add(sec_button, third_button, fourth_button).add(fir_button)
     return markup

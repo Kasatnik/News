@@ -68,10 +68,16 @@ def start(message):
 @bot.callback_query_handler(func=lambda call: call.data == "news")
 def news(cb):
     print(cb)
-    m = ["Choose language", "Введите запрос по новостям", "Ingrese su consulta de noticias"]
-    j = bot.send_message(cb.from_user.id, "Введите запрос по новостям")
-    bot.register_next_step_handler(j, news_api)
+    h = ["Choose language", "Введите запрос по новостям", "Ingrese su consulta de noticias"]
 
+    l = check_language(cb.from_user.id)
+    o = bot.send_message(cb.from_user.id, h[l - 1])
+    bot.register_next_step_handler(o, news_api)
+    bot.delete_message(cb.from_user.id, cb.message_id)
+
+@bot.callback_query_handler(func=lambda call: call.data == "return_home")
+def news(cb):
+    pass
 
 @bot.callback_query_handler(func=lambda call: call.data == "lang")
 def lang(cb):
@@ -95,7 +101,9 @@ def all_lang(cb):
 @bot.callback_query_handler(func=lambda call: call.data == "send_admin")
 def sendadmin(cb):
     bot.delete_message(cb.from_user.id, cb.message.message_id)
-    bot.send_message(cb.from_user.id, "Введите что вы хотите отправить админу")
+    h = ["What do you want to send to the admin?", "Что вы хотите отправить админу?", '¿Qué quieres enviar al administrador?']
+    l = check_language(cb.from_user.id)
+    bot.send_message(cb.from_user.id, h[l - 1])
     bot.register_next_step_handler(cb.message, send__admin)
 
 
@@ -106,7 +114,10 @@ def send__admin(message):
 
     bot.delete_message(message.from_user.id, message.message_id)
     bot.delete_message(message.from_user.id, message.message_id - 1)
-    bot.send_message(message.from_user.id, f"Отправлено")
+    h = ["Shipped", "Отправлено",
+         'Enviado']
+    l = check_language(message.from_user.id)
+    bot.send_message(message.from_user.id, h[l - 1])
     start(message)
 
 
@@ -123,7 +134,10 @@ def send_user(message):
         except tel.apihelper.ApiTelegramException as Error:
             bot.send_message(message.from_user.id, f"Обработано, {Error}")
     else:
-        bot.send_message(message.from_user.id, "Ты не админ")
+        h = ["You are not an admin", "Ты не админ",
+             'No eres un administrador']
+        l = check_language(message.from_user.id)
+        bot.send_message(message.from_user.id, h[l - 1])
         return
 
 
