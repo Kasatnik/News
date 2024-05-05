@@ -68,7 +68,7 @@ def start(message):
 @bot.callback_query_handler(func=lambda call: call.data == "news")
 def news(cb):
     print(cb)
-    h = ["Choose language", "Введите запрос по новостям", "Ingrese su consulta de noticias"]
+    h = ["Choose language🗞", "Введите запрос по новостям🗞", "Ingrese su consulta de noticias🗞"]
 
     l = check_language(cb.from_user.id)
     o = bot.send_message(cb.from_user.id, h[l - 1])
@@ -134,8 +134,8 @@ def send_user(message):
         except tel.apihelper.ApiTelegramException as Error:
             bot.send_message(message.from_user.id, f"Обработано, {Error}")
     else:
-        h = ["You are not an admin", "Ты не админ",
-             'No eres un administrador']
+        h = ["You are not an admin😔", "Ты не админ😔",
+             'No eres un administrador😔']
         l = check_language(message.from_user.id)
         bot.send_message(message.from_user.id, h[l - 1])
         return
