@@ -2,6 +2,7 @@ import random
 import json
 import time
 from pprint import pprint
+from typing import Any
 
 import telebot as tel
 import wikipedia
@@ -21,7 +22,7 @@ bot = tel.TeleBot(token)
 dict_id = {}
 
 
-def create_table():
+def create_table()->None:
     with sqlite3.connect("server.db") as db:
         sql = db.cursor()
         sql.execute("""CREATE TABLE IF NOT EXISTS users (
@@ -33,7 +34,7 @@ def create_table():
         db.commit()
 
 
-def set_language_by_id_tg(tel_id, language):
+def set_language_by_id_tg(tel_id: Any[int, str], language):
     with sqlite3.connect("server.db") as db:
         sql = db.cursor()
         sql.execute("UPDATE users SET language = ? WHERE ID_TG = ?", (language, tel_id))
@@ -62,28 +63,32 @@ def start(message):
     register(message)
     k = check_language(ID_TG=message.from_user.id)
     markup = lang_change(k)
+    bot.delete_message(message.from_user.id, message.message_id)
     bot.send_animation(message.from_user.id, open("Images/robotgif.gif", 'rb'), reply_markup=markup)
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "news")
 def news(cb):
+    bot.delete_message(cb.from_user.id, cb.message.message_id)
     print(cb)
     h = ["Choose language🗞", "Введите запрос по новостям🗞", "Ingrese su consulta de noticias🗞"]
-
     l = check_language(cb.from_user.id)
     o = bot.send_message(cb.from_user.id, h[l - 1])
     bot.register_next_step_handler(o, news_api)
-    bot.delete_message(cb.from_user.id, cb.message_id)
+
 
 @bot.callback_query_handler(func=lambda call: call.data == "return_home")
 def news(cb):
-    pass
+    bot.delete_message(cb.from_user.id, cb.message.message_id)
+    start(cb.message)
 
 @bot.callback_query_handler(func=lambda call: call.data == "lang")
 def lang(cb):
+    print(cb)
     h = ["Choose language", "Выберите язык", "Elige lengua"]
-    markup = lang_buttons()
     l = check_language(cb.from_user.id)
+    markup = lang_buttons(g=l)
+    bot.delete_message(cb.from_user.id, cb.message.message_id)
     bot.send_message(cb.from_user.id, h[l-1], reply_markup=markup)
 
 
@@ -132,11 +137,12 @@ def send_user(message):
             bot.send_message(g, v)
             # bot.send_message(message.from_user.id, f"Обработано, всё красиво")
         except tel.apihelper.ApiTelegramException as Error:
-            bot.send_message(message.from_user.id, f"Обработано, {Error}")
+            print(f"Обработано {Error}")
     else:
         h = ["You are not an admin😔", "Ты не админ😔",
              'No eres un administrador😔']
         l = check_language(message.from_user.id)
+        bot.delete_message(message.from_user.id, message.message_id)
         bot.send_message(message.from_user.id, h[l - 1])
         return
 
@@ -145,6 +151,7 @@ def send_user(message):
 def send_admin(message):
     s = message.text[11:]
     print(s)
+    bot.delete_message(message.from_user.id, message.message_id)
     bot.send_message(creator, f"{s}, от {message.from_user.first_name} {message.from_user.username}")
 
 
@@ -179,7 +186,10 @@ create_table()
 bot.polling()
 
 """
-1. Скинуть Паштету ссылку на пастебин с кодом (без токенов, только этот код)
-2. Обработать кнопку, что если юзер нажал на Испанию, то нужно ему заменить в БД (база данных) ленг постать на 3
-TODO
+1. потестить испанский язык (составить запросы на испанском)
+2. выставить bot.delete_message в нужных местах, чтобы была чистота в боте)
+3. в теме "связаться с админом", когда бот пишет: "Напиши ваш вопрос админу" (типа того) добавить inline кнопку "Вернуться домой". При нажатии на эту кнопку - просто сделать обработчик, который просто вернёт человека в главное меню)
+3.1. в разделе "Русский, English, Spain" также сделать кнопку для возврата в главное меню)
+3.2. с новостями, думаю, аналогично) подумай, как тут бы ты хотел это реализовать
+4. по желанию: в разных разделах вставить красивые анимации/картинки (найти в гугле)
 """
