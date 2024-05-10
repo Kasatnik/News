@@ -1,7 +1,7 @@
 from telebot import types
 
 
-def lang_buttons(g):
+def lang_buttons(g: int)-> types.InlineKeyboardMarkup:
     dict_lang = {1: ("Return home",),
                  2: ("Вернуться домой",),
                  3: ("Volver a casa",)}
@@ -14,7 +14,7 @@ def lang_buttons(g):
     return markup
 
 
-def lang_change(g):
+def lang_change(g: int)-> types.InlineKeyboardMarkup:
     dict_lang = {1: ("News", "Contact with admin", "Change language", "Return home"),
                  2: ("Новости", "Связаться с админом", "Сменить язык", "Вернуться домой"),
                  3: ("Noticias", "Contactar al administrador", "Cambiar idioma", "Volver a casa")}
